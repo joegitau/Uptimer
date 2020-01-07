@@ -1,6 +1,6 @@
 const http = require('http');
 const url = require('url');
-const StringDecoder = require('string_decoder');
+const StringDecoder = require('string_decoder').StringDecoder;
 
 const server = http.createServer((req, res) => {
   // parse the url
