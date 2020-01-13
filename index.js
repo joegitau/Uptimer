@@ -1,41 +1,29 @@
 const http = require('http');
 const url = require('url');
-const StringDecoder = require('string_decoder').StringDecoder;
+const { StringDecoder } = require('string_decoder');
 
-const server = http.createServer((req, res) => {
-  // parse the url
-  const parsedURL = url.parse(req.url, true);
+const server = http.createServer;
 
-  // strip trailing slashes
-  const path = parsedURL.pathname;
-  const trimmedPath = path.replace(/^\/+|\/+$/g, '');
+server((req, res) => {
+  // get the request method -> necessary while making routes
+  const method = req.method.toLowerCase(); // url method
+  const headers = req.headers; // http request headers
 
-  // get the query string as an object
-  const queryStringObj = parsedURL.query;
+  // get the url path
+  const parsedPath = url.parse(req.url, true); // returns amongst others - pathname, path, query{}
+  const qs = parsedPath.query; // query string
+  const path = parsedPath.pathname.replace(/^\/+|\/+$/g, ''); // standardize pathname to strip out trailing slashes
 
-  // get the http method
-  const method = req.method.toLowerCase();
-
-  // get the headers as an object
-  const headers = req.headers;
-
-  // get the payload
+  // decode buffer object into string === buffer.toString()
   const decoder = new StringDecoder('utf8');
   let buffer = '';
 
   req.on('data', chunk => {
-    buffer += decoder.write(chunk);
+    buffer += decoder.write(chunk); // return the decoded string using the WRITE string_decoder method
   });
 
   req.on('end', () => {
-    buffer += decorder.end();
-    res.end('whats happening\n');
+    buffer += decoder.end(); // return any remaining trailing bytes using the END string_decoder method
+    res.end('Whats happenin!');
   });
-
-  console.log(method); // http method
-  console.log(trimmedPath); // trimmed url path
-  console.log(queryStringObj); // query string object
-  console.log(headers); // headers
-});
-
-server.listen(3000, () => console.log('listening on port 3000'));
+}).listen(3000, () => console.log('listening on port 3000'));
