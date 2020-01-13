@@ -31,7 +31,7 @@ server((req, res) => {
 
     // get the matching request route it to corresponding handler
     const route =
-      typeof routes[path] !== 'undefined' ? routes[path] : routes[notFound];
+      typeof routes[path] !== 'undefined' ? routes[path] : routes['notFound'];
 
     // each route will accept two args - data and a callback (in this case, the response object as the handler will be out of scope)
     route(data, (statusCode, payload) => {
@@ -55,10 +55,10 @@ server((req, res) => {
 // Each handler takes in two args -> * REQUEST DATA and a CALLBACK: represents the response
 const handlers = {
   sample(data, res) {
-    res(200, { name: 'this is a sample route handler' });
+    res(200, { title: 'this is a sample route handler' });
   },
   notFound(data, res) {
-    res(404);
+    res(404, { title: 'Page Not Found' });
   }
 };
 
