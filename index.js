@@ -24,6 +24,46 @@ server((req, res) => {
 
   req.on('end', () => {
     buffer += decoder.end(); // return any remaining trailing bytes using the END string_decoder method
-    res.end('Whats happenin!');
+    console.log('Recieved Request payload:', buffer);
+
+    // * request data
+    const data = { method, headers, qs, path, payload: buffer };
+
+    // get the matching request route it to corresponding handler
+    const route =
+      typeof routes[path] !== 'undefined' ? routes[path] : routes[notFound];
+
+    // each route will accept two args - data and a callback (in this case, the response object as the handler will be out of scope)
+    route(data, (statusCode, payload) => {
+      typeof statusCode === 'number' ? statusCode : 200; // accepts what is provided or defaults to 200
+      typeof payload === 'object' ? payload : {}; // the response sent back to client -> if empty, default to empty object
+
+      // return stringified object to the client
+      const payloadString = JSON.stringify(payload);
+
+      // return response to client
+      res.setHeader('Accept-Control-Accept-Origin', '*'); // cors
+      res.writeHead(statusCode, { 'Content-Type': 'application/json' }); // status code & content type
+      res.end(payloadString);
+
+      console.log('Returned response: ', statusCode, payloadString);
+    });
   });
 }).listen(3000, () => console.log('listening on port 3000'));
+
+// handlers
+// Each handler takes in two args -> * REQUEST DATA and a CALLBACK: represents the response
+const handlers = {
+  sample(data, res) {
+    res(200, { name: 'this is a sample route handler' });
+  },
+  notFound(data, res) {
+    res(404);
+  }
+};
+
+// routes
+const routes = {
+  sample: handlers.sample,
+  notFound: handlers.notFound
+};
