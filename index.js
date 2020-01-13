@@ -1,10 +1,36 @@
+const fs = require('fs');
+const https = require('https');
 const http = require('http');
 const url = require('url');
 const { StringDecoder } = require('string_decoder');
 
-const server = http.createServer;
+const config = require('./config/config');
 
-server((req, res) => {
+const httpsServer = https.createServer;
+const httpServer = http.createServer;
+
+// http server
+httpServer((req, res) => {
+  unifiedServer(req, res);
+}).listen(config.httpPort, () =>
+  console.log(`listening on port ${config.httpPort}`)
+);
+
+// https server
+// https ssl cert and key
+const httpsServerOptions = {
+  key: fs.readFileSync('./https/key.pem'),
+  cert: fs.readFileSync('./https/cert.pem')
+};
+
+httpsServer(httpsServerOptions, (req, res) => {
+  unifiedServer(req, res);
+}).listen(config.httpsPort, () =>
+  console.log(`listening on port ${config.httpsPort}`)
+);
+
+// serve both http and https servers
+const unifiedServer = (res, req) => {
   // get the request method -> necessary while making routes
   const method = req.method.toLowerCase(); // url method
   const headers = req.headers; // http request headers
@@ -49,13 +75,12 @@ server((req, res) => {
       console.log('Returned response: ', statusCode, payloadString);
     });
   });
-}).listen(3000, () => console.log('listening on port 3000'));
-
+};
 // handlers
 // Each handler takes in two args -> * REQUEST DATA and a CALLBACK: represents the response
 const handlers = {
-  sample(data, res) {
-    res(200, { title: 'this is a sample route handler' });
+  ping(data, res) {
+    res(200, { title: 'OK' });
   },
   notFound(data, res) {
     res(404, { title: 'Page Not Found' });
@@ -64,6 +89,6 @@ const handlers = {
 
 // routes
 const routes = {
-  sample: handlers.sample,
+  ping: handlers.ping,
   notFound: handlers.notFound
 };
