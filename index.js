@@ -49,7 +49,7 @@ const unifiedServer = (res, req) => {
   });
 
   req.on('end', () => {
-    buffer += decoder.end(); // return any remaining trailing bytes using the END string_decoder method
+    buffer += decoder.end(); // return any remaining/ trailing bytes using the END string_decoder method
     console.log('Recieved Request payload:', buffer);
 
     // * request data
