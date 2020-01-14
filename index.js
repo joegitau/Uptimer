@@ -5,9 +5,31 @@ const url = require('url');
 const { StringDecoder } = require('string_decoder');
 
 const config = require('./config/config');
+const _data = require('./lib/data');
 
 const httpsServer = https.createServer;
 const httpServer = http.createServer;
+
+// testing: create
+// _data.create('mason', 'newFile', { name: 'mason' }, err => {
+//   console.error(err);
+// });
+
+// testing: read
+// _data.read('mason', 'newFile', (err, data) => {
+//   if (err) return console.error(err);
+//   console.log(data);
+// });
+
+// testing: update
+// _data.update('mason', 'newFile', { age: 3 }, err => {
+//   console.error(err);
+// });
+
+// testing: delete
+// _data.delete('mason', 'newFile', err => {
+//   console.error(err);
+// });
 
 // http server
 httpServer((req, res) => {
