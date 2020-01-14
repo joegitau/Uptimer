@@ -2,12 +2,14 @@ const env = {
   development: {
     httpPort: 3000,
     httpsPort: 3001,
-    envName: 'development'
+    envName: 'development',
+    _PASS_SECRET: 'secretIsMason'
   },
   production: {
     httpPort: 5000,
     httpsPort: 5001,
-    envName: 'production'
+    envName: 'production',
+    _PASS_SECRET: 'secretIsMason'
   }
 };
 

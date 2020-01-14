@@ -5,7 +5,7 @@ const url = require('url');
 const { StringDecoder } = require('string_decoder');
 
 const config = require('./config/config');
-const _data = require('./lib/data');
+const routes = require('./src/routes');
 
 const httpsServer = https.createServer;
 const httpServer = http.createServer;
@@ -97,20 +97,4 @@ const unifiedServer = (res, req) => {
       console.log('Returned response: ', statusCode, payloadString);
     });
   });
-};
-// handlers
-// Each handler takes in two args -> * REQUEST DATA and a CALLBACK: represents the response
-const handlers = {
-  ping(data, res) {
-    res(200, { title: 'OK' });
-  },
-  notFound(data, res) {
-    res(404, { title: 'Page Not Found' });
-  }
-};
-
-// routes
-const routes = {
-  ping: handlers.ping,
-  notFound: handlers.notFound
 };
