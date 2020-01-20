@@ -66,7 +66,8 @@ const routes = {
 
               // save user
               _data.create('users', telephone, user, err => {
-                if (!err) res(200, { message: 'User created!' });
+                if (!err) res(201, { message: 'User created!' });
+                // 200 - created
                 else res(500, { error: 'User not created!' }); // 500 - internal server error
               });
             } else {

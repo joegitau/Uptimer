@@ -5,6 +5,7 @@ const url = require('url');
 const { StringDecoder } = require('string_decoder');
 
 const config = require('./config/config');
+const utils = require('./src/utils');
 const routes = require('./src/routes');
 
 const httpsServer = https.createServer;
@@ -75,7 +76,13 @@ const unifiedServer = (res, req) => {
     console.log('Recieved Request payload:', buffer);
 
     // * request data
-    const data = { method, headers, qs, path, payload: buffer };
+    const data = {
+      method,
+      headers,
+      qs,
+      path,
+      payload: utils.parseJsonToObj(buffer) // buffer parsed to json obj
+    };
 
     // get the matching request route it to corresponding handler
     const route =

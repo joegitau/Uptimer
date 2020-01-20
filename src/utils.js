@@ -13,6 +13,16 @@ const utils = {
     } else {
       return false;
     }
+  },
+
+  // parse objects into strings and prevent from throwing errors - instead throw an empty obj
+  parseJsonToObj(str) {
+    try {
+      let obj = JSON.parse(str);
+      return obj;
+    } catch (err) {
+      return {};
+    }
   }
 };
 
