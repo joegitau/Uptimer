@@ -1,6 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 
+const utils = require('./utils');
+
 // create folders within .data dir & write to individual files within created folders
 const lib = {
   baseDir: path.join(__dirname, './../.data'), // path to base directory
@@ -32,6 +34,11 @@ const lib = {
   // method to read data from the files
   read(dir, file, callback) {
     fs.readFile(`${this.baseDir}/${dir}/${file}.json`, 'utf8', (err, data) => {
+      // parse data recieved into json obj
+      if (!err && data) {
+        const parsedData = utils.parseJsonToObj(data);
+        callback(false, parsedData);
+      }
       callback(err, data);
     });
   },

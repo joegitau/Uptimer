@@ -34,26 +34,6 @@ const httpServer = http.createServer;
 
 // http server
 httpServer((req, res) => {
-  unifiedServer(req, res);
-}).listen(config.httpPort, () =>
-  console.log(`listening on port ${config.httpPort}`)
-);
-
-// https server
-// https ssl cert and key
-const httpsServerOptions = {
-  key: fs.readFileSync('./https/key.pem'),
-  cert: fs.readFileSync('./https/cert.pem')
-};
-
-httpsServer(httpsServerOptions, (req, res) => {
-  unifiedServer(req, res);
-}).listen(config.httpsPort, () =>
-  console.log(`listening on port ${config.httpsPort}`)
-);
-
-// serve both http and https servers
-const unifiedServer = (res, req) => {
   // get the request method -> necessary while making routes
   const method = req.method.toLowerCase(); // url method
   const headers = req.headers; // http request headers
@@ -104,4 +84,6 @@ const unifiedServer = (res, req) => {
       console.log('Returned response: ', statusCode, payloadString);
     });
   });
-};
+}).listen(config.httpPort, () =>
+  console.log(`listening on port ${config.httpPort}`)
+);

@@ -39,7 +39,7 @@ const routes = {
       const lastname =
         typeof lname === 'string' && lname.trim().length > 0 ? lname : false;
       const phone =
-        typeof telephone === 'string' && telephone.trim().length === 12
+        typeof telephone === 'string' && telephone.trim().length === 10
           ? telephone
           : false;
       const password =
@@ -66,9 +66,9 @@ const routes = {
 
               // save user
               _data.create('users', telephone, user, err => {
-                if (!err) res(201, { message: 'User created!' });
+                if (!err) res(500, { message: 'User not created!' });
                 // 200 - created
-                else res(500, { error: 'User not created!' }); // 500 - internal server error
+                else res(201, { message: 'User created' });
               });
             } else {
               res(500, { error: "Could not hash user's password!" }); // 500 - Internal server error
@@ -84,7 +84,27 @@ const routes = {
       }
     },
 
-    get(data, res) {},
+    // get user
+    get(data, res) {
+      // verfiy phone number
+      const phone =
+        typeof data.qs.phone === 'string' && data.qs.phone.trim().length === 10
+          ? data.qs.phone.trim()
+          : false;
+      if (phone) {
+        _data.read('users', phone, (err, user) => {
+          if (!err && user) {
+            delete user.hashedPassword;
+            res(200, user);
+          } else {
+            res(404); // page not found
+          }
+        });
+      } else {
+        console.log(data.qs);
+        res(400, { message: 'Missing required fields' });
+      }
+    },
 
     update(data, res) {},
 
