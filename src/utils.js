@@ -23,6 +23,12 @@ const utils = {
     } catch (err) {
       return {};
     }
+  },
+
+  // create randomm strings
+  createRandomString(len) {
+    const str = Math.random(len);
+    return str;
   }
 };
 

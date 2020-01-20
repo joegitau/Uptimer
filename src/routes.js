@@ -74,7 +74,7 @@ const routes = {
               _data.create('users', telephone, user, err => {
                 if (!err) res(500, { error: 'User not created!' });
                 // 200 - created
-                else res(201, { message: 'User created' });
+                else res(201, user);
               });
             } else {
               res(500, { error: "Could not hash user's password!" }); // 500 - Internal server error
@@ -187,6 +187,63 @@ const routes = {
       } else {
         console.log(data.qs);
         res(400, { error: 'Missing required fields' });
+      }
+    }
+  },
+
+  ///////////////////////////////////////////////////////////
+  // tokens
+  tokens(data, res) {
+    const acceptableMethods = ['get', 'post', 'put', 'delete'];
+    if (acceptableMethods.indexOf(data.method) > -1) {
+      routes._tokens[data.method](data, res);
+    } else {
+      res(405, { error: 'Method Not Allowed' });
+    }
+  },
+
+  _tokens: {
+    post(data, res) {
+      const { phone: telephone, password: pass } = data.payload;
+      const phone =
+        typeof telephone === 'string' && telephone.trim().length === 10
+          ? telephone.trim()
+          : false;
+      const password =
+        typeof pass === 'string' && pass.trim().length > 0
+          ? pass.trim()
+          : false;
+
+      if (telephone && pass) {
+        _data.read('tokens', telephone, (err, token) => {
+          if (!err && token) {
+            // hash password
+            const hashedPassword = _utils.hash(pass);
+            if (hashedPassword === token.hashedPassword) {
+              // compare passwords
+              const tokenId = utils.createRandomString(20);
+              const expiry = Date.now() + 1000 * 60 * 60;
+              const tokenObj = {
+                id: tokenId,
+                phone: telephone,
+                expiry: expiry
+              };
+
+              // save token
+              _data.create('tokens', tokenId, tokenObj, err => {
+                if (!err) res(500, { error: 'Token not created' });
+                else res(201, tokenObj);
+              });
+            } else {
+              res(400, 'Incorrect password or telephone');
+            }
+          } else {
+            console.log(err);
+            res(500, { error: 'Could not fetch token' });
+          }
+        });
+      } else {
+        res(400, { error: 'Required fields missing' });
       }
     }
   }
