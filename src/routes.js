@@ -167,20 +167,26 @@ const routes = {
       }
     },
 
+    // delete a user
     delete(data, res) {
-      // validate if user exists
       const phone =
-        typeof data.payload.phone === 'string' &&
-        data.payload.phone.trim().length > 0
-          ? data.payload.phone.trim()
+        typeof data.qs.phone === 'string' && data.qs.phone.trim().length === 10
+          ? data.qs.phone.trim()
           : false;
       if (phone) {
-        _data.delete('users', phone, err => {
-          if (!err) res(500, { error: 'User not deleted!' });
-          else res(200, { message: 'User deleted!' });
+        _data.read('users', phone, (err, user) => {
+          if (!err && user) {
+            _data.delete('users', phone, err => {
+              if (!err) res(500, { error: 'Could not delete user' });
+              else res(200, { message: 'User deleted' });
+            });
+          } else {
+            res(400, { error: 'Could not find specified user' }); // page not found
+          }
         });
       } else {
-        res(400, { error: 'Missing required field' });
+        console.log(data.qs);
+        res(400, { error: 'Missing required fields' });
       }
     }
   }
