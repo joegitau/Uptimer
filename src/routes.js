@@ -311,7 +311,26 @@ const routes = {
     },
 
     // delete tokens
-    delete(data, res) {}
+    delete(data, res) {
+      const id =
+        typeof data.qs.id === 'string' && data.qs.id.trim().length === 20
+          ? data.qs.id.trim()
+          : false;
+      if (id) {
+        _data.read('users', id, (err, token) => {
+          if (!err && token) {
+            _data.delete('tokens', id, err => {
+              if (!err) res(500, { error: 'Could not delete token' });
+              else res(200, { message: 'Token deleted' });
+            });
+          } else {
+            res(400, { error: 'Could not find specified token' }); // page not found
+          }
+        });
+      } else {
+        res(400, { error: 'Missing required fields' });
+      }
+    }
   }
 };
 
