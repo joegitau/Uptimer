@@ -204,28 +204,29 @@ const routes = {
 
   _tokens: {
     post(data, res) {
-      const { phone: telephone, password: pass } = data.payload;
       const phone =
-        typeof telephone === 'string' && telephone.trim().length === 10
-          ? telephone.trim()
+        typeof data.payload.phone === 'string' &&
+        data.payload.phone.trim().length === 10
+          ? data.payload.phone.trim()
           : false;
       const password =
-        typeof pass === 'string' && pass.trim().length > 0
-          ? pass.trim()
+        typeof data.payload.password === 'string' &&
+        data.payload.password.trim().length > 0
+          ? data.payload.password.trim()
           : false;
 
-      if (telephone && pass) {
-        _data.read('tokens', telephone, (err, token) => {
-          if (!err && token) {
+      if (phone && password) {
+        _data.read('users', phone, (err, user) => {
+          if (!err && user) {
             // hash password
-            const hashedPassword = _utils.hash(pass);
-            if (hashedPassword === token.hashedPassword) {
+            const hashedPassword = _utils.hash(password);
+            if (hashedPassword === user.hashedPassword) {
               // compare passwords
-              const tokenId = utils.createRandomString(20);
+              const tokenId = _utils.createRandomString(20);
               const expiry = Date.now() + 1000 * 60 * 60;
               const tokenObj = {
                 id: tokenId,
-                phone: telephone,
+                phone: phone,
                 expiry: expiry
               };
 
@@ -239,7 +240,7 @@ const routes = {
             }
           } else {
             console.log(err);
-            res(500, { error: 'Could not fetch token' });
+            res(500, { error: 'Could not fetch user' });
           }
         });
       } else {
