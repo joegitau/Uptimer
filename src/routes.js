@@ -270,7 +270,45 @@ const routes = {
     },
 
     // update tokens
-    put(data, res) {},
+    put(data, res) {
+      // validate id and expiry
+      const id =
+        typeof data.payload.id === 'string' &&
+        data.payload.id.trim().length === 20
+          ? data.payload.id.trim()
+          : false;
+      const extend =
+        typeof data.payload.extend === 'boolean' && data.payload.extend === true
+          ? true
+          : false;
+
+      if (id && extend) {
+        _data.read('tokens', id, (err, token) => {
+          if ((!err, token)) {
+            // validate if token is still active
+            if (token.expiry > Date.now()) {
+              token.expiry = Date.now() + 1000 * 60 * 60; // extend the token's expiry date
+
+              _data.update('tokens', id, token, err => {
+                if (!err) res(200, { message: 'Token updated' });
+                else
+                  res(500, {
+                    error: "Token's expiration date could not be updated!"
+                  });
+              });
+            } else {
+              res(400, {
+                error: 'Token has already expired, and cannot be extended'
+              });
+            }
+          } else {
+            res(500, { error: 'Token not found' });
+          }
+        });
+      } else {
+        res(400, { error: 'Missing required fields' });
+      }
+    },
 
     // delete tokens
     delete(data, res) {}
