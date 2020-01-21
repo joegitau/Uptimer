@@ -97,13 +97,27 @@ const routes = {
         typeof data.qs.phone === 'string' && data.qs.phone.trim().length === 10
           ? data.qs.phone.trim()
           : false;
+
       if (phone) {
-        _data.read('users', phone, (err, user) => {
-          if (!err && user) {
-            delete user.hashedPassword;
-            res(200, user);
+        // get the token from req header
+        const token =
+          typeof data.headers.token === 'string' ? data.headers.token : false;
+
+        // verify given token against the phone number
+        routes.verifyToken(token, phone, isValidToken => {
+          if (isValidToken) {
+            _data.read('users', phone, (err, user) => {
+              if (!err && user) {
+                delete user.hashedPassword;
+                res(200, user);
+              } else {
+                res(404, { error: 'User not found' }); // page not found
+              }
+            });
           } else {
-            res(404, { error: 'User not found' }); // page not found
+            res(403, {
+              error: 'Token not found in headers or Token has expired'
+            });
           }
         });
       } else {
@@ -146,13 +160,28 @@ const routes = {
               if (lastname) user.lastname = lastname;
               if (password) user.hashedPassword = _utils.hash(password);
 
-              // save updated user
-              _data.update('users', phone, user, err => {
-                if (!err) {
-                  res(200, { message: 'User updated!' });
+              // get the token from req header
+              const token =
+                typeof data.headers.token === 'string'
+                  ? data.headers.token
+                  : false;
+
+              // verify given token against the phone number
+              routes.verifyToken(token, phone, isValidToken => {
+                if (isValidToken) {
+                  // save updated user
+                  _data.update('users', phone, user, err => {
+                    if (!err) {
+                      res(200, { message: 'User updated!' });
+                    } else {
+                      console.log(err);
+                      res(500, { error: 'Could not update user' });
+                    }
+                  });
                 } else {
-                  console.log(err);
-                  res(500, { error: 'Could not update user' });
+                  res(403, {
+                    error: 'Token not found in headers or Token has expired'
+                  });
                 }
               });
             } else {
@@ -174,14 +203,28 @@ const routes = {
           ? data.qs.phone.trim()
           : false;
       if (phone) {
-        _data.read('users', phone, (err, user) => {
-          if (!err && user) {
-            _data.delete('users', phone, err => {
-              if (!err) res(500, { error: 'Could not delete user' });
-              else res(200, { message: 'User deleted' });
+        // get the token from req header
+        const token =
+          typeof data.headers.token === 'string' ? data.headers.token : false;
+
+        // verify given token against the phone number
+        routes.verifyToken(token, phone, isValidToken => {
+          if (isValidToken) {
+            // save updated user
+            _data.read('users', phone, (err, user) => {
+              if (!err && user) {
+                _data.delete('users', phone, err => {
+                  if (!err) res(500, { error: 'Could not delete user' });
+                  else res(200, { message: 'User deleted' });
+                });
+              } else {
+                res(400, { error: 'Could not find specified user' }); // page not found
+              }
             });
           } else {
-            res(400, { error: 'Could not find specified user' }); // page not found
+            res(403, {
+              error: 'Token not found in headers or Token has expired'
+            });
           }
         });
       } else {
@@ -331,6 +374,20 @@ const routes = {
         res(400, { error: 'Missing required fields' });
       }
     }
+  },
+
+  // verify if given token id is currently valid for a given user
+  verifyToken(id, phone, res) {
+    // lookup the token
+    _data.read('tokens', id, (err, token) => {
+      if (!err && token) {
+        // verify that token belongs to specified user and that its valid
+        if (token.phone === phone && token.id === id) res(true);
+        else res(false);
+      } else {
+        res(false);
+      }
+    });
   }
 };
 
