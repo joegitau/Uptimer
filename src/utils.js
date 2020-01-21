@@ -30,16 +30,13 @@ const utils = {
     // verify if parameter is number
     if (Number.isInteger(strLen)) {
       const alphaNumerics = 'abcdefghijklmnopqrstuvwxyz0123456789';
-
       let str = '';
-
       for (let s = 1; s <= strLen; s++) {
         const randomCharacters = alphaNumerics.charAt(
           Math.floor(Math.random() * alphaNumerics.length)
         );
         str += randomCharacters;
       }
-
       return str;
     } else {
       return false;

@@ -246,7 +246,34 @@ const routes = {
       } else {
         res(400, { error: 'Required fields missing' });
       }
-    }
+    },
+
+    // get tokens
+    get(data, res) {
+      // validate token id
+      const id =
+        typeof data.qs.id === 'string' && data.qs.id.trim().length === 20
+          ? data.qs.id.trim()
+          : false;
+      if (id) {
+        _data.read('tokens', id, (err, token) => {
+          if (!err && token) {
+            res(200, token);
+          } else {
+            res(404, { error: 'Token not found' }); // page not found
+          }
+        });
+      } else {
+        console.log(data.qs);
+        res(400, { error: 'Missing required fields' });
+      }
+    },
+
+    // update tokens
+    put(data, res) {},
+
+    // delete tokens
+    delete(data, res) {}
   }
 };
 

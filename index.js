@@ -77,7 +77,7 @@ httpServer((req, res) => {
       const payloadString = JSON.stringify(payload);
 
       // return response to client
-      res.setHeader('Accept-Control-Accept-Origin', '*'); // cors
+      // res.setHeader('Accept-Control-Accept-Origin', '*'); // cors
       res.writeHead(statusCode, { 'Content-Type': 'application/json' }); // status code & content type
       res.end(payloadString);
 
